@@ -1,0 +1,16 @@
+# Activamos el módulo de reescritura de URLs de Apache
+RewriteEngine On
+
+# Evita la visualización de los archivos y directorios en el navegador
+Options -Indexes
+
+# Condiciones
+# Comprobamos que la URL solicitada no corresponda a un archivo existente (Ej: http://contactos.local/assets/css/normalize.css)
+RewriteCond %{REQUEST_FILENAME} !-f
+# Comprobamos que la URL solicitada no corresponda a un directorio existente (Ej: http://contactos.local/iconos/)
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirección limpia al Front Controller
+# Quitamos la / inicial de index.php para que sea relativa a la ubicación del .htaccess
+RewriteRule ^ index.php [L,QSA]
+
