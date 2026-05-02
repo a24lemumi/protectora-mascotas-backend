@@ -62,13 +62,28 @@
         // Constructor que inicializa los parámetros de conexión desde variables de entorno
         public function __construct()
         {
-       
+        
             if (self::$db_host === null) {
-                self::$db_host = $_ENV['DBHOST'] ?? 'localhost';
-                self::$db_user = $_ENV['DBUSER'] ?? 'root';
-                self::$db_pass = $_ENV['DBPASS'] ?? '';
-                self::$db_name = $_ENV['DBNAME'] ?? '';
-                self::$db_port = $_ENV['DBPORT'] ?? '3306';
+                // Verificación para DATABASE_URL (Render.com standard)
+                $databaseUrl = $_ENV['DATABASE_URL'] ?? null;
+                
+                if ($databaseUrl) {
+                    // Parsear DATABASE_URL para PostgreSQL
+                    $url = parse_url($databaseUrl);
+                    
+                    self::$db_host = $url['host'] ?? 'localhost';
+                    self::$db_port = $url['port'] ?? '5432';
+                    self::$db_user = $url['user'] ?? 'postgres';
+                    self::$db_pass = $url['pass'] ?? '';
+                    self::$db_name = ltrim($url['path'] ?? '', '/');
+                } else {
+                    // Fallback a variables individuales .env
+                    self::$db_host = $_ENV['DBHOST'] ?? 'localhost';
+                    self::$db_user = $_ENV['DBUSER'] ?? 'postgres';
+                    self::$db_pass = $_ENV['DBPASS'] ?? '';
+                    self::$db_name = $_ENV['DBNAME'] ?? '';
+                    self::$db_port = $_ENV['DBPORT'] ?? '5432';
+                }
             }
         }
 
@@ -85,7 +100,7 @@
         private function open_connection()
         {
             $dsn = sprintf(
-                'mysql:host=%s;dbname=%s;port=%s;charset=utf8mb4',
+                'pgsql:host=%s;dbname=%s;port=%s',
                 self::$db_host,
                 self::$db_name,
                 self::$db_port
