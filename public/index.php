@@ -35,5 +35,4 @@ $router->post('/api/mascotas/{id}/adoptar', [MascotasController::class, 'adoptar
 $route = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 
 $dispatcher = new Dispatcher();
-$dispatcher->addGlobalMiddleware(\App\Middleware\CorsMiddleware::class);
 $dispatcher->dispatch($route);
