@@ -1,7 +1,5 @@
-DROP DATABASE IF EXISTS protectora;
-CREATE DATABASE protectora;
-
-\c protectora;
+DROP TABLE IF EXISTS mascotas;
+DROP TABLE IF EXISTS usuarios;
 
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
