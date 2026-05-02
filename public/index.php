@@ -21,7 +21,8 @@ $router = new Router();
 $router->post('/api/auth/login', [UsuariosController::class, 'login']);
 $router->post('/api/auth/register', [UsuariosController::class, 'register']);
 $router->get('/health', [MascotasController::class, 'health']);
-$router->get('/api/db-update', [MascotasController::class, 'migrateDatabase']);
+$router->get('/db-update', [MascotasController::class, 'migrateDatabase']);
+$router->get('/api/db-update', [MascotasController::class, 'migrateDatabase']); // Mantenemos ambas por si acaso
 
 // --- Definición de Rutas Protegidas (Requieren JWT) ---
 // Mascotas
