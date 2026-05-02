@@ -11,6 +11,8 @@
 require_once __DIR__ . '/config/config.php';
 require_once VENDOR_DIR . '/autoload.php';
 
+use App\Middleware\CorsMiddleware;
+
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_strict_mode', 1);
 
@@ -31,11 +33,17 @@ if (file_exists(APP_ROOT . '/.env')) {
     try {
         $dotenv = Dotenv::createImmutable(APP_ROOT);
         $dotenv->load();
-        $dotenv->required(['DBHOST', 'DBNAME', 'DBUSER', 'DBPASS'])->notEmpty();
+        $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'])->notEmpty();
     } catch (Exception $e) {
         die('Fallo crítico en configuración local: ' . $e->getMessage());
     }
 }
+
+// Ejecutar middleware CORS globalmente
+$cors = new CorsMiddleware();
+$cors->handle();
+
+error_log("CORS Middleware executed");
 
 // Configuración de entorno y manejo de errores
 define('APP_ENV', $_ENV['APP_ENV'] ?? 'production');
