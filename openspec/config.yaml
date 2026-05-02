@@ -1,20 +1,23 @@
 schema: spec-driven
+context: |
+  Proyecto: Plataforma de Adopción de Mascotas — Backend API
+  Estado: Proyecto Brownfield (el código base ya está creado; nos centraremos en iterar, mejorar y añadir funcionalidades sobre lo existente).
+  Lenguaje: PHP 8.2 Vanilla (sin frameworks)
+  Arquitectura: MVC, API RESTful
+  Base de datos: MySQL gestionado con PDO, patrón Singleton
+  Seguridad: JWT, validación de headers, protección XSS e inyección SQL, CORS
+  Estilo de código: PSR-4 para namespaces.
+  Frontend: La API se conectará a un frontend ubicado en una carpeta externa (/frontend), pero su desarrollo se realizará en una fase posterior, tras finalizar el backend.
+  Documentacion: Crea documentación en el archivo README.md para cada funcionalidad que se desarrolle.
+  Base de Datos: Referencia -> database.sql
+  Enrutamiento: Controlador frontal (index.php) que delega peticiones según la URI.
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Identificar los archivos afectados antes de implementar
+    - Incluir plan de rollback si el cambio afecta la base de datos
+  specs:
+    - Usar formato WHEN/THEN para escenarios de comportamiento
+  tasks:
+    - Dividir en subtareas atómicas y ordenadas
+    - Cada tarea debe ser verificable de forma independiente
