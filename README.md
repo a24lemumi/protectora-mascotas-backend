@@ -1,105 +1,99 @@
 # Protectora de Mascotas - Backend API
 
-API RESTful para la gestión de una protectora de mascotas, desarrollada en PHP 8.2 vanilla siguiendo el patrón MVC.
+API RESTful para la gestión de una protectora de mascotas, desarrollada en PHP 8.2 vanilla siguiendo el patrón MVC y una arquitectura moderna basada en Formularios.
 
 ## Requisitos
 
 - PHP 8.2+
 - MySQL 5.7+
 - Composer
+- Entorno local como XAMPP (Apache)
 
 ## Instalación
 
-1. Clonar el repositorio
-2. Ejecutar `composer install`
-3. Copiar `.env.example` a `.env` y configurar las variables:
-   - `DBHOST`, `DBNAME`, `DBUSER`, `DBPASS`: Configuración de base de datos
-   - `JWT_SECRET`: Clave secreta para tokens JWT (cambiar en producción)
-   - `CORS_ALLOWED_ORIGINS`: Orígenes permitidos (e.g., `http://localhost:3000` o `*` para desarrollo)
+1. Clonar el repositorio.
+2. Ejecutar `composer install` para descargar las dependencias.
+3. Crear `.env.example` y `.env` y configurar las variables:
+   - `DBHOST`, `DBNAME`, `DBUSER`, `DBPASS`: Configuración de base de datos (por defecto en XAMPP suele ser `root` sin contraseña).
+   - `JWT_SECRET`: Clave secreta para tokens JWT.
+   - `CORS_ALLOWED_ORIGINS`: Orígenes permitidos (`*` para desarrollo).
 
-4. Importar `database.sql` en MySQL:
+4. Importar `database.sql` en phpMyAdmin o MySQL para crear la estructura inicial:
+
    ```bash
    mysql -u root -p < database.sql
    ```
 
-5. Servidor web: Colocar en directorio público o usar servidor interno:
-   ```bash
-   php -S localhost:8000 -t public
-   ```
+5. **Configuración de Ruteo (Local/XAMPP)**:
+   Si ejecutas el proyecto en una subcarpeta de XAMPP, el Router lo detecta automáticamente (`$router->setBasePath(dirname($_SERVER['SCRIPT_NAME']));`). También puedes configurar un VirtualHost en Apache (ej: `http://protectora.local`) apuntando a la carpeta `/public` del proyecto.
 
 ## Autenticación
 
-La API usa JWT (JSON Web Tokens). Obtener token vía login y enviarlo en header:
-```
-Authorization: Bearer <token>
+La API usa **JWT (JSON Web Tokens)**. Para consumir las rutas protegidas, primero debes obtener un token vía login y enviarlo en las cabeceras de cada petición:
+
+```http
+Authorization: Bearer Token <tu_token_aqui>
 ```
 
 ## Endpoints
 
-### Autenticación
-- `POST /api/auth/login` - Obtener token (público)
-  ```json
-  {"email": "user@email.com", "password": "password"}
-  ```
-
-### Usuarios
-- `POST /api/usuarios` - Registrar usuario (público)
-- `GET /api/usuarios?page=1&limit=5` - Listar usuarios (protegido)
-- `GET /api/usuarios/{id}` - Ver usuario (protegido)
-- `PUT /api/usuarios/{id}` - Actualizar usuario (protegido, solo propietario)
-- `DELETE /api/usuarios/{id}` - Eliminar usuario (protegido, solo propietario)
-
-### Mascotas
-- `GET /api/mascotas?page=1&limit=5&especie=perro` - Listar mascotas con filtros (protegido)
-- `GET /api/mascotas/{id}` - Ver mascota (protegido)
-- `POST /api/mascotas` - Crear mascota (protegido, asigna usuario autenticado)
-- `PUT /api/mascotas/{id}` - Actualizar mascota (protegido, solo propietario)
-- `DELETE /api/mascotas/{id}` - Eliminar mascota (protegido, solo propietario)
-
-### Otros
-- `GET /health` - Health check (público)
+| Método   | Endpoint                     | Descripción                                         | Protegido (JWT) |
+| :------- | :--------------------------- | :-------------------------------------------------- | :-------------: |
+| **POST** | `/api/auth/register`         | Registrar un nuevo usuario                          |      ❌ No      |
+| **POST** | `/api/auth/login`            | Iniciar sesión y obtener token JWT                  |      ❌ No      |
+| **GET**  | `/api/mascotas`              | Listar mascotas                                     |      🔒 Sí      |
+| **GET**  | `/api/mascotas/{id}`         | Ver ficha detallada de una mascota                  |      🔒 Sí      |
+| **POST** | `/api/mascotas`              | Crear mascota (se asigna al usuario logueado)       |      🔒 Sí      |
+| **POST** | `/api/mascotas/{id}`         | Actualizar mascota (`method="PUT"`)                 |      🔒 Sí      |
+| **POST** | `/api/mascotas/{id}`         | Eliminar mascota (`method="DELETE"`)                |      🔒 Sí      |
+| **POST** | `/api/mascotas/{id}/adoptar` | Adoptar una mascota disponible (asigna al logueado) |      🔒 Sí      |
+| **GET**  | `/health`                    | Health check para comprobar que la API funciona     |      ❌ No      |
 
 ## Formato de Respuesta
 
-Éxito:
+**Éxito:**
+
 ```json
 {
   "success": true,
+  "timestamp": "2026-05-02T12:00:00+00:00",
   "data": { ... },
-  "message": "Mensaje opcional",
-  "timestamp": "2026-05-01T12:00:00+00:00"
+  "message": "Mensaje de éxito opcional"
 }
 ```
 
-Error:
+**Error:**
+
 ```json
 {
   "success": false,
+  "timestamp": "2026-05-02T12:00:00+00:00",
   "error": {
     "code": "ERROR_CODE",
-    "message": "Descripción del error"
-  },
-  "timestamp": "2026-05-01T12:00:00+00:00"
+    "message": "Descripción legible del error"
+  }
 }
 ```
 
-## Estructura del Proyecto
+## Estructura de la Arquitectura
 
-```
+Para mantener un código limpio y escalable, el proyecto separa responsabilidades estrictamente:
+
+```text
 app/
-├── Controllers/     # Controladores MVC
-├── Core/           # Router, Dispatcher, ApiResponse, Request
-├── Exceptions/     # Excepciones personalizadas
-├── Middleware/      # JWT, CORS, RequestSanitizer
-├── Models/         # Modelos (DBAbstractModel, Usuarios, Mascotas)
-└── config/         # Configuración
+├── Controllers/  # Controladores MVC (Lógica HTTP, delega la limpieza a Forms)
+├── Core/         # Router y Dispatcher (Motor de enrutamiento)
+├── Forms/        # Clases de Formulario, Validator y Sanitizer (Limpieza y validación de datos)
+├── Middleware/   # Filtros previos (JwtMiddleware, CorsMiddleware)
+├── Models/       # Modelos (Consultas PDO a Base de Datos)
+└── config/       # Constantes y directorios base
 ```
 
 ## Características de Seguridad
 
-- Autenticación JWT con HS256
-- Protección contra XSS (sanitización de entrada)
-- Protección contra SQL Injection (prepared statements)
-- CORS configurrable
-- Headers de seguridad
-- Password hashing con `password_hash()`
+- **Autenticación robusta**: JWT (HS256) validado por Middleware en todas las rutas protegidas.
+- **Autorización por propiedad**: En actualización y borrado se verifica que el `usuario_id` del token coincida con el de la mascota.
+- **Validación estricta**: Capa `Forms` dedicada a sanear (`trim`, `htmlspecialchars`) y validar datos antes de llegar al modelo.
+- **Protección SQL Injection**: Uso exclusivo de Prepared Statements (`PDO`) en `DBAbstractModel`.
+- **CORS Configurable**: Middleware para proteger el consumo desde orígenes no autorizados.
+- **Contraseñas seguras**: Encriptadas en base de datos mediante `password_hash()`.
