@@ -2,6 +2,7 @@
     namespace App\Controllers;
 
     use App\Models\UsuariosModel;
+    use App\Forms\UsuarioForm;
 
     class UsuariosController extends BaseController {
         private $model;
@@ -11,19 +12,8 @@
         }
 
         public function register() {
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (empty($data)) {
-                $data = $_POST;
-            }
-
-            $missing = [];
-            foreach (['username', 'email', 'password'] as $field) {
-                if (!isset($data[$field]) || trim($data[$field]) === '') {
-                    $missing[] = $field;
-                }
-            }
-
-            if (!empty($missing)) {
+            $form = new UsuarioForm();
+            if (!$form->submit('register')) {
                 header('Content-Type: application/json');
                 http_response_code(400);
                 echo json_encode([
@@ -31,11 +21,13 @@
                     'timestamp' => date('c'),
                     'error' => [
                         'code' => 'VALIDATION_ERROR',
-                        'message' => 'Campos requeridos faltantes: ' . implode(', ', $missing)
+                        'message' => implode(', ', $form->getErrors())
                     ]
                 ]);
                 exit;
             }
+
+            $data = $form->getData();
 
             if ($this->model->findByEmailForCheck($data['email'])) {
                 header('Content-Type: application/json');
@@ -92,19 +84,8 @@
         }
 
         public function login() {
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (empty($data)) {
-                $data = $_POST;
-            }
-
-            $missing = [];
-            foreach (['email', 'password'] as $field) {
-                if (!isset($data[$field]) || trim($data[$field]) === '') {
-                    $missing[] = $field;
-                }
-            }
-
-            if (!empty($missing)) {
+            $form = new UsuarioForm();
+            if (!$form->submit('login')) {
                 header('Content-Type: application/json');
                 http_response_code(400);
                 echo json_encode([
@@ -112,11 +93,13 @@
                     'timestamp' => date('c'),
                     'error' => [
                         'code' => 'VALIDATION_ERROR',
-                        'message' => 'Campos requeridos faltantes: ' . implode(', ', $missing)
+                        'message' => implode(', ', $form->getErrors())
                     ]
                 ]);
                 exit;
             }
+
+            $data = $form->getData();
 
             $user = $this->model->findByEmail($data['email']);
             if (!$user || !password_verify($data['password'], $user['password'])) {
