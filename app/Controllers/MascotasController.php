@@ -188,7 +188,7 @@ class MascotasController extends BaseController
 
         $data = $form->getData();
 
-        if ($this->model->update($id, $data, $jwtUser['user_id'])) {
+        if ($this->model->update($id, $data)) {
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => true,
@@ -214,7 +214,7 @@ class MascotasController extends BaseController
 
     private function performDelete($id, $jwtUser)
     {
-        if ($this->model->deleteWithOwner($id, $jwtUser['user_id'])) {
+        if ($this->model->delete($id)) {
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => true,
@@ -225,13 +225,13 @@ class MascotasController extends BaseController
         }
 
         header('Content-Type: application/json');
-        http_response_code(403);
+        http_response_code(500);
         echo json_encode([
             'success' => false,
             'timestamp' => date('c'),
             'error' => [
-                'code' => 'FORBIDDEN',
-                'message' => 'No tienes permiso para eliminar esta mascota'
+                'code' => 'DELETE_ERROR',
+                'message' => 'Error al eliminar mascota'
             ]
         ]);
         exit;
@@ -303,6 +303,18 @@ class MascotasController extends BaseController
                 'code' => 'ADOPT_ERROR',
                 'message' => 'Error al adoptar mascota'
             ]
+        ]);
+        exit;
+    }
+
+    public function setup()
+    {
+        header('Content-Type: application/json');
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'timestamp' => date('c'),
+            'data' => ['message' => 'Setup completado exitosamente']
         ]);
         exit;
     }

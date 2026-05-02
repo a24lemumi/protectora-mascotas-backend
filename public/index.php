@@ -14,14 +14,15 @@ use App\Core\Router;
 use App\Core\Dispatcher;
 use App\Controllers\MascotasController;
 use App\Controllers\UsuariosController;
+use App\Controllers\SetupController;
 
 $router = new Router();
+$router->get('/setup', [SetupController::class, 'index']);
 
 // --- Definición de Rutas Públicas ---
 $router->post('/api/auth/login', [UsuariosController::class, 'login']);
 $router->post('/api/auth/register', [UsuariosController::class, 'register']);
 $router->get('/health', [MascotasController::class, 'health']);
-
 
 // --- Definición de Rutas Protegidas (Requieren JWT) ---
 // Mascotas
