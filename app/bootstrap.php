@@ -27,12 +27,14 @@ if (file_exists(APP_DIR . '/helpers/helpers.php')) {
 // Carga de variables de entorno
 use Dotenv\Dotenv;
 
-try {
-    $dotenv = Dotenv::createImmutable(APP_ROOT);
-    $dotenv->load();
-    $dotenv->required(['DBHOST', 'DBNAME', 'DBUSER', 'DBPASS'])->notEmpty();
-} catch (Exception $e) {
-    die('Fallo crítico en configuración: ' . $e->getMessage());
+if (file_exists(APP_ROOT . '/.env')) {
+    try {
+        $dotenv = Dotenv::createImmutable(APP_ROOT);
+        $dotenv->load();
+        $dotenv->required(['DBHOST', 'DBNAME', 'DBUSER', 'DBPASS'])->notEmpty();
+    } catch (Exception $e) {
+        die('Fallo crítico en configuración local: ' . $e->getMessage());
+    }
 }
 
 // Configuración de entorno y manejo de errores
