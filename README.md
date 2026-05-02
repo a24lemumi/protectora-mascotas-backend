@@ -5,7 +5,7 @@ API RESTful para la gestión de una protectora de mascotas, desarrollada en PHP 
 ## Requisitos
 
 - PHP 8.2+
-- MySQL 5.7+
+- PostgreSQL 16+ (para Render.com) o MySQL 5.7+ (local)
 - Composer
 - Entorno local como XAMPP (Apache)
 
@@ -14,25 +14,30 @@ API RESTful para la gestión de una protectora de mascotas, desarrollada en PHP 
 1. Clonar el repositorio.
 2. Ejecutar `composer install` para descargar las dependencias.
 3. Crear `.env.example` y `.env` y configurar las variables:
-   - `DBHOST`, `DBNAME`, `DBUSER`, `DBPASS`: Configuración de base de datos (por defecto en XAMPP suele ser `root` sin contraseña).
+   - `DB_DRIVER`: `pgsql` para Render.com, `mysql` para local
+   - `DATABASE_URL`: (Render.com automático) o `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` para local
    - `JWT_SECRET`: Clave secreta para tokens JWT.
    - `CORS_ALLOWED_ORIGINS`: Orígenes permitidos (`*` para desarrollo).
 
-4. Importar `database.sql` en phpMyAdmin o MySQL para crear la estructura inicial:
-
+4. **Local (MySQL)**: Importar `database.sql` en phpMyAdmin o MySQL:
    ```bash
    mysql -u root -p < database.sql
    ```
 
-5. **Configuración de Ruteo (Local/XAMPP)**:
-   Si ejecutas el proyecto en una subcarpeta de XAMPP, el Router lo detecta automáticamente (`$router->setBasePath(dirname($_SERVER['SCRIPT_NAME']));`). También puedes configurar un VirtualHost en Apache (ej: `http://protectora.local`) apuntando a la carpeta `/public` del proyecto.
+5. **Render.com (PostgreSQL)**:
+   - El proyecto usa `render.yaml` + `Dockerfile` para despliegue automático.
+   - **Inicialización**: Acceder a `https://tu-app.onrender.com/setup_db.php` para crear las tablas.
+   - **⚠️ IMPORTANTE**: Borrar `public/setup_db.php` inmediatamente después de usarlo.
+
+6. **Configuración de Ruteo (Local/XAMPP)**:
+   Si ejecutas el proyecto en una subcarpeta de XAMPP, el Router lo detecta automáticamente (`$router->setBasePath(dirname($_SERVER['SCRIPT_NAME']))`). También puedes configurar un VirtualHost en Apache (ej: `http://protectora.local`) apuntando a la carpeta `/public` del proyecto.
 
 ## Autenticación
 
 La API usa **JWT (JSON Web Tokens)**. Para consumir las rutas protegidas, primero debes obtener un token vía login y enviarlo en las cabeceras de cada petición:
 
 ```http
-Authorization: Bearer Token <tu_token_aqui>
+Authorization: Bearer <tu_token_aqui>
 ```
 
 ## Endpoints
