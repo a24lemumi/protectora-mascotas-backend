@@ -5,7 +5,7 @@ The `UsuariosController` SHALL only provide authentication endpoints (login, reg
 
 #### Scenario: Only login and register routes exist
 - **WHEN** checking `public/index.php` route definitions
-- **THEN** only `POST /api/auth/login` and `POST /api/usuarios` (register) routes exist for usuarios
+- **THEN** only `POST /api/auth/login` and `POST /api/auth/register` routes exist for usuarios
 
 #### Scenario: UsuariosController has only login and register methods
 - **WHEN** checking `UsuariosController.php` source code
