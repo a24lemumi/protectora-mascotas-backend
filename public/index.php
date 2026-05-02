@@ -28,8 +28,7 @@ $router->get('/health', [MascotasController::class, 'health']);
 $router->get('/api/mascotas', [MascotasController::class, 'index'], [App\Middleware\JwtMiddleware::class]);
 $router->get('/api/mascotas/{id}', [MascotasController::class, 'show'], [App\Middleware\JwtMiddleware::class]);
 $router->post('/api/mascotas', [MascotasController::class, 'create'], [App\Middleware\JwtMiddleware::class]);
-$router->post('/api/mascotas/{id}', [MascotasController::class, 'update'], [App\Middleware\JwtMiddleware::class]);
-$router->post('/api/mascotas/{id}', [MascotasController::class, 'delete'], [App\Middleware\JwtMiddleware::class]);
+$router->post('/api/mascotas/{id}', [MascotasController::class, 'handleUpdateDelete'], [App\Middleware\JwtMiddleware::class]);
 $router->post('/api/mascotas/{id}/adoptar', [MascotasController::class, 'adoptar'], [App\Middleware\JwtMiddleware::class]);
 
 // --- Proceso de Despacho ---

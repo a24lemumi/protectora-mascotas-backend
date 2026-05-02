@@ -16,29 +16,13 @@ class MascotasController extends BaseController
 
     public function index()
     {
-        $page = $_GET['page'] ?? 1;
-        $limit = $_GET['limit'] ?? SHPORPAGINA;
-        $filters = [
-            'especie' => $_GET['especie'] ?? null,
-            'raza' => $_GET['raza'] ?? null
-        ];
-
-        $mascotas = $this->model->readAll($page, $limit, $filters);
-        $total = $this->model->getCount($filters);
+        $mascotas = $this->model->readAll(1, null, [], true);
 
         header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
             'timestamp' => date('c'),
-            'data' => [
-                'data' => $mascotas,
-                'pagination' => [
-                    'page' => (int)$page,
-                    'limit' => (int)$limit,
-                    'total' => (int)$total,
-                    'pages' => ceil($total / $limit)
-                ]
-            ]
+            'data' => $mascotas
         ]);
         exit;
     }
@@ -130,7 +114,7 @@ class MascotasController extends BaseController
         exit;
     }
 
-    public function update($id)
+    public function handleUpdateDelete($id)
     {
         $jwtUser = $_SERVER['JWT_USER'] ?? null;
         if (!$jwtUser) {
@@ -162,25 +146,15 @@ class MascotasController extends BaseController
             exit;
         }
 
-        if ($mascota['usuario_id'] != $jwtUser['user_id']) {
-            header('Content-Type: application/json');
-            http_response_code(403);
-            echo json_encode([
-                'success' => false,
-                'timestamp' => date('c'),
-                'error' => [
-                    'code' => 'FORBIDDEN',
-                    'message' => 'No tienes permiso para modificar esta mascota'
-                ]
-            ]);
-            exit;
-        }
-
         $postData = $_POST;
         $jsonData = json_decode(file_get_contents('php://input'), true);
+        $method = strtoupper($postData['_method'] ?? $jsonData['_method'] ?? '');
 
-        $method = $postData['_method'] ?? $jsonData['_method'] ?? null;
-        if (strtoupper($method) !== 'PUT') {
+        if ($method === 'PUT') {
+            return $this->performUpdate($id, $jwtUser);
+        } elseif ($method === 'DELETE') {
+            return $this->performDelete($id, $jwtUser);
+        } else {
             header('Content-Type: application/json');
             http_response_code(400);
             echo json_encode([
@@ -188,12 +162,15 @@ class MascotasController extends BaseController
                 'timestamp' => date('c'),
                 'error' => [
                     'code' => 'INVALID_METHOD',
-                    'message' => 'Para actualizar usa POST con _method=PUT'
+                    'message' => 'Para actualizar usa _method=PUT, para eliminar usa _method=DELETE'
                 ]
             ]);
             exit;
         }
+    }
 
+    private function performUpdate($id, $jwtUser)
+    {
         $form = new MascotaForm();
         if (!$form->submit()) {
             header('Content-Type: application/json');
@@ -235,70 +212,8 @@ class MascotasController extends BaseController
         exit;
     }
 
-    public function delete($id)
+    private function performDelete($id, $jwtUser)
     {
-        $jwtUser = $_SERVER['JWT_USER'] ?? null;
-        if (!$jwtUser) {
-            header('Content-Type: application/json');
-            http_response_code(401);
-            echo json_encode([
-                'success' => false,
-                'timestamp' => date('c'),
-                'error' => [
-                    'code' => 'UNAUTHORIZED',
-                    'message' => 'Autenticación requerida'
-                ]
-            ]);
-            exit;
-        }
-
-        $mascota = $this->model->read($id);
-        if (!$mascota) {
-            header('Content-Type: application/json');
-            http_response_code(404);
-            echo json_encode([
-                'success' => false,
-                'timestamp' => date('c'),
-                'error' => [
-                    'code' => 'NOT_FOUND',
-                    'message' => 'Mascota no encontrada'
-                ]
-            ]);
-            exit;
-        }
-
-        if ($mascota['usuario_id'] != $jwtUser['user_id']) {
-            header('Content-Type: application/json');
-            http_response_code(403);
-            echo json_encode([
-                'success' => false,
-                'timestamp' => date('c'),
-                'error' => [
-                    'code' => 'FORBIDDEN',
-                    'message' => 'No tienes permiso para eliminar esta mascota'
-                ]
-            ]);
-            exit;
-        }
-
-        $postData = $_POST;
-        $jsonData = json_decode(file_get_contents('php://input'), true);
-
-        $method = $postData['_method'] ?? $jsonData['_method'] ?? null;
-        if (strtoupper($method) !== 'DELETE') {
-            header('Content-Type: application/json');
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'timestamp' => date('c'),
-                'error' => [
-                    'code' => 'INVALID_METHOD',
-                    'message' => 'Para eliminar usa POST con _method=DELETE'
-                ]
-            ]);
-            exit;
-        }
-
         if ($this->model->deleteWithOwner($id, $jwtUser['user_id'])) {
             header('Content-Type: application/json');
             echo json_encode([
@@ -310,13 +225,13 @@ class MascotasController extends BaseController
         }
 
         header('Content-Type: application/json');
-        http_response_code(500);
+        http_response_code(403);
         echo json_encode([
             'success' => false,
             'timestamp' => date('c'),
             'error' => [
-                'code' => 'DELETE_ERROR',
-                'message' => 'Error al eliminar mascota'
+                'code' => 'FORBIDDEN',
+                'message' => 'No tienes permiso para eliminar esta mascota'
             ]
         ]);
         exit;

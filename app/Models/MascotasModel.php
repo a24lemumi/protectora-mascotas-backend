@@ -47,13 +47,10 @@
             return $this->get($id);
         }
 
-        public function readAll($page = 1, $limit = null, $filters = []) {
-            $limit = $limit ?? SHPORPAGINA;
-            $offset = ($page - 1) * $limit;
-
+        public function readAll($page = 1, $limit = null, $filters = [], $all = false) {
             $where = "";
-            $params = [':limit' => (int)$limit, ':offset' => (int)$offset];
-
+            $params = [];
+            
             if (!empty($filters['especie'])) {
                 $where .= " WHERE m.especie = :especie";
                 $params[':especie'] = $filters['especie'];
@@ -62,7 +59,22 @@
                 $where .= ($where ? " AND" : " WHERE") . " m.raza = :raza";
                 $params[':raza'] = $filters['raza'];
             }
-
+            
+            if ($all) {
+                $this->query = "SELECT m.*, u.username, u.email as usuario_email 
+                               FROM mascotas m 
+                               LEFT JOIN usuarios u ON m.usuario_id = u.id 
+                               $where";
+                $this->parametros = $params;
+                return $this->get_results_from_query();
+            }
+            
+            $limit = $limit ?? SHPORPAGINA;
+            $offset = ($page - 1) * $limit;
+            
+            $params[':limit'] = (int)$limit;
+            $params[':offset'] = (int)$offset;
+            
             $this->query = "SELECT m.*, u.username, u.email as usuario_email 
                            FROM mascotas m 
                            LEFT JOIN usuarios u ON m.usuario_id = u.id 
@@ -102,10 +114,6 @@
             }
 
             $sql = "UPDATE mascotas SET " . implode(', ', $fields) . " WHERE id = :id";
-            if ($usuario_id !== null) {
-                $sql .= " AND usuario_id = :usuario_id";
-                $params[':usuario_id'] = $usuario_id;
-            }
 
             $this->query = $sql;
             $this->parametros = $params;
