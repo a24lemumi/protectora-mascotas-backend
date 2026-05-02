@@ -3,8 +3,13 @@
 
     class JwtMiddleware {
         public function handle() {
-            $headers = getallheaders();
-            $authHeader = $headers['Authorization'] ?? '';
+            // Intentar obtener el token de diferentes fuentes comunes
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+            
+            if (empty($authHeader) && function_exists('getallheaders')) {
+                $headers = getallheaders();
+                $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+            }
 
             if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
                 header('Content-Type: application/json');
