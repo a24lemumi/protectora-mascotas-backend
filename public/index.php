@@ -21,6 +21,7 @@ $router = new Router();
 $router->post('/api/auth/login', [UsuariosController::class, 'login']);
 $router->post('/api/auth/register', [UsuariosController::class, 'register']);
 $router->get('/health', [MascotasController::class, 'health']);
+$router->get('/update_images.php', function() { require __DIR__ . '/update_images.php'; });
 
 // --- Definición de Rutas Protegidas (Requieren JWT) ---
 // Mascotas
