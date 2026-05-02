@@ -20,9 +20,10 @@ $router = new Router();
 // --- Definición de Rutas Públicas ---
 $router->post('/api/auth/login', [UsuariosController::class, 'login']);
 $router->post('/api/auth/register', [UsuariosController::class, 'register']);
-$router->get('/migrate', [MascotasController::class, 'migrate']);
 $router->get('/health', [MascotasController::class, 'health']);
 
+
+$router->get('/api/db-update', [MascotasController::class, 'migrateDatabase']);
 
 // --- Definición de Rutas Protegidas (Requieren JWT) ---
 // Mascotas

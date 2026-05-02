@@ -403,37 +403,28 @@ class MascotasController extends BaseController
         ]);
         exit;
     }
-
-    public function migrate()
+    public function migrateDatabase()
     {
-        // Simple security check
-        $key = $_GET['key'] ?? '';
-        if ($key !== 'migrar123') {
-            header('Content-Type: application/json');
-            http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
-            exit;
-        }
-
         try {
-            $sqlFile = APP_ROOT . '/database_pg.sql';
-            if (!file_exists($sqlFile)) {
-                throw new \Exception("Archivo SQL no encontrado en $sqlFile");
+            $sqlPath = __DIR__ . '/../../database_pg.sql';
+            if (!file_exists($sqlPath)) {
+                throw new \Exception("Archivo SQL no encontrado en: " . $sqlPath);
             }
 
-            $sql = file_get_contents($sqlFile);
-            $conn = $this->model->getConnection();
-            $conn->exec($sql);
+            $sql = file_get_contents($sqlPath);
+            // Usamos la conexión del modelo que ya está instanciado en el controlador
+            $db = $this->model->getConnection();
+            
+            // Ejecutamos el SQL completo
+            $db->exec($sql);
 
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => true,
-                'timestamp' => date('c'),
-                'message' => 'Base de datos actualizada con éxito utilizando database_pg.sql'
+                'message' => 'Base de datos actualizada correctamente con database_pg.sql'
             ]);
         } catch (\Exception $e) {
-            header('Content-Type: application/json');
-            http_response_code(500);
+            header('Content-Type: application/json', true, 500);
             echo json_encode([
                 'success' => false,
                 'error' => $e->getMessage()
