@@ -20,7 +20,7 @@ $router = new Router();
 // --- Definición de Rutas Públicas ---
 $router->post('/api/auth/login', [UsuariosController::class, 'login']);
 $router->post('/api/auth/register', [UsuariosController::class, 'register']);
-$router->post('/api/db/migrate', [MascotasController::class, 'migrate']);
+$router->get('/migrate', [MascotasController::class, 'migrate']);
 $router->get('/health', [MascotasController::class, 'health']);
 
 
