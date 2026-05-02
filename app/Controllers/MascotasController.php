@@ -391,34 +391,4 @@ class MascotasController extends BaseController
         ]);
         exit;
     }
-    public function health()
-    {
-        header('Content-Type: application/json');
-        echo json_encode([
-            'success' => true,
-            'timestamp' => date('c'),
-            'data' => ['status' => 'ok'],
-            'message' => 'API funcionando correctamente'
-        ]);
-        exit;
-    }
-
-    public function migrateDatabase()
-    {
-        try {
-            $sqlPath = __DIR__ . '/../../database_pg.sql';
-            if (!file_exists($sqlPath)) throw new \Exception("Archivo SQL no encontrado.");
-            
-            $sql = file_get_contents($sqlPath);
-            $db = $this->model->getConnection();
-            $db->exec($sql);
-
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'DB actualizada']);
-        } catch (\Exception $e) {
-            header('Content-Type: application/json', true, 500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
-        exit;
-    }
 }
