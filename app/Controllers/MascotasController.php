@@ -393,26 +393,5 @@
             ]);
             exit;
         }
-
-        public function updateImages() {
-            try {
-                $db = $this->model->getConnection();
-                $sql = "UPDATE mascotas SET imagen = REPLACE(imagen, '.jpg', '.jpeg')";
-                $stmt = $db->prepare($sql);
-                $stmt->execute();
-                
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => true,
-                    'message' => "Base de datos actualizada con éxito",
-                    'rows_affected' => $stmt->rowCount(),
-                    'new_extension' => '.jpeg'
-                ]);
-            } catch (\Exception $e) {
-                header('Content-Type: application/json');
-                http_response_code(500);
-                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-            }
-            exit;
-        }
     }
+}
