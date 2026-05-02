@@ -11,8 +11,9 @@ require_once __DIR__ . '/../app/bootstrap.php';
 header('Content-Type: application/json');
 
 try {
-    // Get PDO connection from DBAbstractModel
-    $db = \App\Models\DBAbstractModel::getConnection();
+    // Usamos un modelo concreto (MascotasModel) para obtener la conexión
+    $model = new \App\Models\MascotasModel();
+    $db = $model->getConnection();
     
     // Read the PostgreSQL SQL file
     $sqlFile = __DIR__ . '/../database_pg.sql';
