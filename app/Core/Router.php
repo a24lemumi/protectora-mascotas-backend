@@ -1,11 +1,11 @@
 <?php
-    /**
-     * Descripcion: Archivo de entrada principal para la aplicación de Contactos.
-     * Se encarga de cargar el entorno, configurar rutas y despachar las solicitudes.
-     * 
-     * @author Miguel Ángel Leiva
-     * @date 24-02-2026
-    */
+
+/**
+ * Descripcion: Router class for handling HTTP route matching.
+ * 
+ * @author Miguel Ángel Leiva
+ * @date 24-02-2026
+ */
 
 namespace App\Core;
 
@@ -13,29 +13,22 @@ class Router
 {
     private $routes = [];
 
-    // Permite configurar un prefijo común para todas las rutas, útil para despliegues en subdirectorios.
-    private $basePath = '';
-
-    // Permite configurar un prefijo común para todas las rutas, útil para despliegues en subdirectorios.
-    public function setBasePath($basePath) {
-        $this->basePath = rtrim($basePath, '/');
-    }
-
-    // Registra una ruta para el método GET.
-    public function get(string $path, array $handler, array $middlewares = []): void {
+    // Register a GET route.
+    public function get(string $path, array $handler, array $middlewares = []): void
+    {
         $this->addRoute('GET', $path, $handler, $middlewares);
     }
 
-    // Registra una ruta para el método POST.
-    public function post(string $path, array $handler, array $middlewares = []): void {
+    // Register a POST route.
+    public function post(string $path, array $handler, array $middlewares = []): void
+    {
         $this->addRoute('POST', $path, $handler, $middlewares);
     }
 
-    // Método privado que centraliza la lógica de registro de rutas, creando un patrón regex para la coincidencia.
+    // Private method to add routes with regex pattern.
     private function addRoute(string $method, string $path, array $handler, array $middlewares = []): void
     {
-        $normalizedPath = $this->basePath . '/' . ltrim($path, '/');
-        $pattern = $this->convertPathToRegex($normalizedPath);
+        $pattern = $this->convertPathToRegex($path);
 
         $this->routes[] = [
             'method'      => strtoupper($method),
@@ -45,7 +38,7 @@ class Router
         ];
     }
 
-    // Convierte una ruta con parámetros (e.g., /contactos/{id}) a una expresión regular para su coincidencia.
+    // Convert path with parameters to regex.
     private function convertPathToRegex($path)
     {
         $pattern = preg_quote($path, '#');
@@ -53,11 +46,11 @@ class Router
         return '#^' . $pattern . '$#';
     }
 
-    // Intenta encontrar una ruta que coincida con el método HTTP y la URI proporcionados, devolviendo los detalles de la ruta si se encuentra una coincidencia.
+    // Match route by HTTP method and URI.
     public function match(string $method, string $uri): ?array
     {
         $method = strtoupper($method);
-        $path   = $this->cleanUri($uri); 
+        $path   = $this->cleanUri($uri);
 
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) {
@@ -79,22 +72,13 @@ class Router
             }
         }
 
-        return null; // No se encontró una ruta coincidente
-      
+        return null;
     }
 
-    // Limpia la URI de la solicitud, eliminando el query string y el prefijo base si está configurado, para facilitar la coincidencia con las rutas registradas.
+    // Clean URI by removing query string.
     private function cleanUri($uri)
     {
         $path = parse_url($uri, PHP_URL_PATH);
-        $path = '/' . trim($path, '/');
-        
-
-        if ($this->basePath && strpos($path, $this->basePath) === 0) {
-            $path = substr($path, strlen($this->basePath));
-            $path = '/' . trim($path, '/');
-        }
-        
-        return $path === '' ? '/' : $path;
+        return '/' . trim($path, '/');
     }
 }

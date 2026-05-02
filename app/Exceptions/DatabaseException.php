@@ -1,5 +1,5 @@
 <?php
-    namespace App\Models;
+    namespace App\Exceptions;
 
     class DatabaseException extends \Exception {
         public function logError() {
