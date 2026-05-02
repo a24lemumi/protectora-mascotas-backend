@@ -31,11 +31,11 @@ INSERT INTO usuarios (username, email, telefono, password, nombre, apellido) VAL
     ('carla_diaz', 'carla.diaz@email.com', '656789012', '$2y$10$ejemplohash567', 'Carla', 'Díaz');
 
 INSERT INTO mascotas (nombre, especie, raza, fecha_nac, imagen, usuario_id) VALUES
-    ('Rex', 'perro', 'Pastor Alemán', '2020-03-15', '/imagenes/rex.jpeg', 1),
-    ('Luna', 'gato', 'Europeo', '2019-08-22', '/imagenes/luna.jpeg', 2),
-    ('Toby', 'perro', 'Golden Retriever', '2021-01-10', '/imagenes/toby.jpeg', 3),
-    ('Miau', 'gato', 'Siames', '2020-06-05', '/imagenes/miau.jpeg', 1),
-    ('Rocky', 'perro', 'Bulldog', '2018-11-03', '/imagenes/rocky.jpeg', 4),
-    ('Nina', 'gato', 'Abisinio', '2022-05-12', '/imagenes/nina.jpeg', 5),
+    ('Rex', 'perro', 'Pastor Alemán', '2020-03-15', '/imagenes/rex.jpeg', NULL),
+    ('Luna', 'gato', 'Europeo', '2019-08-22', '/imagenes/luna.jpeg', NULL),
+    ('Toby', 'perro', 'Golden Retriever', '2021-01-10', '/imagenes/toby.jpeg', NULL),
+    ('Miau', 'gato', 'Siames', '2020-06-05', '/imagenes/miau.jpeg', NULL),
+    ('Rocky', 'perro', 'Bulldog', '2018-11-03', '/imagenes/rocky.jpeg', NULL),
+    ('Nina', 'gato', 'Abisinio', '2022-05-12', '/imagenes/nina.jpeg', NULL),
     ('Thor', 'perro', 'Mastín', '2017-04-18', '/imagenes/thor.jpeg', NULL),
     ('Lola', 'gato', 'Persa', '2020-09-30', '/imagenes/lola.jpeg', NULL);

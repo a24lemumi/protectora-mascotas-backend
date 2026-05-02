@@ -1,33 +1,16 @@
-services:
-  # Servicio web PHP
-  - type: web
-    name: protectora-mascotas-backend
-    env: docker
-    plan: starter
-    numInstances: 1
-    healthCheckPath: /health
-    envVars:
-      - key: JWT_SECRET
-        generateValue: true
-      - key: DB_DRIVER
-        value: pgsql
-      - key: DATABASE_URL
-        fromDatabase:
-          name: protectora-db
-          property: connectionString
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-    startCommand: |
-      php -S 0.0.0.0:8080 -t public
-    routes:
-      - type: rewrite
-        source: /*
-    buildFilter:
-      paths:
-        - '**/*'
-  
-  # Base de datos PostgreSQL gestionada
-  - type: psql
-    name: protectora-db
-    plan: starter
-    version: 16
+# Exported from Render on 2026-05-02T19:56:17Z
+version: "1"
+projects:
+  - name: Protectora de mascotas
+    environments:
+      - name: Production
+        databases:
+          - name: mascotas-pg
+            databaseName: protectora_db_125o
+            user: miguel_a_leiva
+            plan: free
+            region: frankfurt
+            ipAllowList:
+              - source: 0.0.0.0/0
+                description: everywhere
+            postgresMajorVersion: "18"
