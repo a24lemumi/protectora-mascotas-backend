@@ -88,7 +88,7 @@
         }
 
         // Obtiene la conexión única de la base de datos (patrón Singleton)
-        protected function getConnection()
+        public function getConnection()
         {
             if (self::$connection === null) {
                 self::$connection = $this->open_connection();
