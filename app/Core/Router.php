@@ -72,6 +72,12 @@ class Router
             }
         }
 
+        if ($path === '/debug-routes') {
+            header('Content-Type: application/json');
+            echo json_encode($this->routes);
+            exit;
+        }
+
         return null;
     }
 
