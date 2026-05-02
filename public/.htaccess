@@ -1,5 +1,8 @@
-# Activamos el módulo de reescritura de URLs de Apache
 RewriteEngine On
+
+# Pasar el encabezado de Authorization a PHP (necesario para JWT en Apache)
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
 # Evita la visualización de los archivos y directorios en el navegador
 Options -Indexes
