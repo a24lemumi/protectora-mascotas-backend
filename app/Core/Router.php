@@ -52,6 +52,9 @@ class Router
         $method = strtoupper($method);
         $path   = $this->cleanUri($uri);
 
+        // DEBUG TEMPORAL
+        die(json_encode(["metodo" => $method, "ruta_limpia" => $path, "uri_original" => $uri]));
+
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) {
                 continue;
