@@ -391,7 +391,6 @@ class MascotasController extends BaseController
         ]);
         exit;
     }
-
     public function health()
     {
         header('Content-Type: application/json');
@@ -403,32 +402,22 @@ class MascotasController extends BaseController
         ]);
         exit;
     }
+
     public function migrateDatabase()
     {
         try {
             $sqlPath = __DIR__ . '/../../database_pg.sql';
-            if (!file_exists($sqlPath)) {
-                throw new \Exception("Archivo SQL no encontrado en: " . $sqlPath);
-            }
-
-            $sql = file_get_contents($sqlPath);
-            // Usamos la conexión del modelo que ya está instanciado en el controlador
-            $db = $this->model->getConnection();
+            if (!file_exists($sqlPath)) throw new \Exception("Archivo SQL no encontrado.");
             
-            // Ejecutamos el SQL completo
+            $sql = file_get_contents($sqlPath);
+            $db = $this->model->getConnection();
             $db->exec($sql);
 
             header('Content-Type: application/json');
-            echo json_encode([
-                'success' => true,
-                'message' => 'Base de datos actualizada correctamente con database_pg.sql'
-            ]);
+            echo json_encode(['success' => true, 'message' => 'DB actualizada']);
         } catch (\Exception $e) {
             header('Content-Type: application/json', true, 500);
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
         exit;
     }
