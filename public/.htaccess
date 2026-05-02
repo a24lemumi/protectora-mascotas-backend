@@ -1,4 +1,5 @@
 RewriteEngine On
+CGIPassAuth On
 
 # Pasar el encabezado de Authorization a PHP (necesario para JWT en Apache)
 RewriteCond %{HTTP:Authorization} ^(.*)
