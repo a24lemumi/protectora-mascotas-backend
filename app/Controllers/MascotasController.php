@@ -403,4 +403,42 @@ class MascotasController extends BaseController
         ]);
         exit;
     }
+
+    public function migrate()
+    {
+        // Simple security check
+        $key = $_GET['key'] ?? '';
+        if ($key !== 'migrar123') {
+            header('Content-Type: application/json');
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
+            exit;
+        }
+
+        try {
+            $sqlFile = APP_ROOT . '/database_pg.sql';
+            if (!file_exists($sqlFile)) {
+                throw new \Exception("Archivo SQL no encontrado en $sqlFile");
+            }
+
+            $sql = file_get_contents($sqlFile);
+            $conn = $this->model->getConnection();
+            $conn->exec($sql);
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'timestamp' => date('c'),
+                'message' => 'Base de datos actualizada con éxito utilizando database_pg.sql'
+            ]);
+        } catch (\Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+        exit;
+    }
 }
