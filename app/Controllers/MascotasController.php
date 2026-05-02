@@ -2,6 +2,7 @@
     namespace App\Controllers;
 
     use App\Models\MascotasModel;
+    use App\Forms\MascotaForm;
 
     class MascotasController extends BaseController {
         private $model;
@@ -79,19 +80,8 @@
                 exit;
             }
 
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (empty($data)) {
-                $data = $_POST;
-            }
-
-            $missing = [];
-            foreach (['nombre', 'especie'] as $field) {
-                if (!isset($data[$field]) || trim($data[$field]) === '') {
-                    $missing[] = $field;
-                }
-            }
-
-            if (!empty($missing)) {
+            $form = new MascotaForm();
+            if (!$form->submit()) {
                 header('Content-Type: application/json');
                 http_response_code(400);
                 echo json_encode([
@@ -99,12 +89,13 @@
                     'timestamp' => date('c'),
                     'error' => [
                         'code' => 'VALIDATION_ERROR',
-                        'message' => 'Campos requeridos faltantes: ' . implode(', ', $missing)
+                        'message' => implode(', ', $form->getErrors())
                     ]
                 ]);
                 exit;
             }
 
+            $data = $form->getData();
             $data['usuario_id'] = $jwtUser['user_id'];
 
             $mascotaId = $this->model->create($data);
@@ -196,7 +187,22 @@
                 exit;
             }
 
-            $data = !empty($jsonData) ? $jsonData : $postData;
+            $form = new MascotaForm();
+            if (!$form->submit()) {
+                header('Content-Type: application/json');
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'timestamp' => date('c'),
+                    'error' => [
+                        'code' => 'VALIDATION_ERROR',
+                        'message' => implode(', ', $form->getErrors())
+                    ]
+                ]);
+                exit;
+            }
+
+            $data = $form->getData();
 
             if ($this->model->update($id, $data, $jwtUser['user_id'])) {
                 header('Content-Type: application/json');
